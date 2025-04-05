@@ -1,0 +1,60 @@
+import math
+import os
+import random
+import re
+import sys
+
+def get_median(counts, d):
+    count_sum = 0
+    if d % 2 == 1:
+        median_pos = d // 2 + 1
+        for i in range(len(counts)):
+            count_sum += counts[i]
+            if count_sum >= median_pos:
+                return i
+    else:
+        first = None
+        second = None
+        median_pos1 = d // 2
+        median_pos2 = median_pos1 + 1
+        for i in range(len(counts)):
+            count_sum += counts[i]
+            if first is None and count_sum >= median_pos1:
+                first = i
+            if count_sum >= median_pos2:
+                second = i
+                break
+        return (first + second) / 2
+
+def activityNotifications(expenditure, d):
+    max_exp = 201  # Since 0 <= expenditure[i] <= 200
+    counts = [0] * max_exp
+    notifications = 0
+
+    # Initialize the counts for the first d days
+    for i in range(d):
+        counts[expenditure[i]] += 1
+
+    for i in range(d, len(expenditure)):
+        median = get_median(counts, d)
+        if expenditure[i] >= 2 * median:
+            notifications += 1
+
+        # Slide the window
+        counts[expenditure[i - d]] -= 1
+        counts[expenditure[i]] += 1
+
+    return notifications
+
+# ---- Main Execution Block ----
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    first_multiple_input = input().rstrip().split()
+    n = int(first_multiple_input[0])
+    d = int(first_multiple_input[1])
+    expenditure = list(map(int, input().rstrip().split()))
+
+    result = activityNotifications(expenditure, d)
+    fptr.write(str(result) + '\n')
+    fptr.close()
