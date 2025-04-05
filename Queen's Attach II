@@ -1,52 +1,52 @@
-#include <bits/stdc++.h>
-using namespace std;
-
-int queensAttack(int n, int k, int r_q, int c_q, vector<vector<int>> obstacles) {
-    // Maximum moves in each direction before hitting the board boundary
-    int up = n - r_q, down = r_q - 1, left = c_q - 1, right = n - c_q;
-    int up_left = min(up, left), up_right = min(up, right);
-    int down_left = min(down, left), down_right = min(down, right);
-
-    // Store obstacles in a set for fast lookup
-    set<pair<int, int>> obstacle_set;
-    for (auto &obstacle : obstacles) {
-        obstacle_set.insert({obstacle[0], obstacle[1]});
+def queensAttack(n, k, r_q, c_q, obstacles):
+    directions = {
+        "N": n - r_q,
+        "S": r_q - 1,
+        "E": n - c_q,
+        "W": c_q - 1,
+        "NE": min(n - r_q, n - c_q),
+        "NW": min(n - r_q, c_q - 1),
+        "SE": min(r_q - 1, n - c_q),
+        "SW": min(r_q - 1, c_q - 1)
     }
 
-    int attackable_squares = 0;
-    vector<pair<int, int>> directions = {
-        {1, 0}, {-1, 0}, {0, -1}, {0, 1},  // Up, Down, Left, Right
-        {1, -1}, {1, 1}, {-1, -1}, {-1, 1} // Diagonals: UL, UR, DL, DR
-    };
+    for r, c in obstacles:
+        # North
+        if c == c_q and r > r_q:
+            directions["N"] = min(directions["N"], r - r_q - 1)
+        # South
+        elif c == c_q and r < r_q:
+            directions["S"] = min(directions["S"], r_q - r - 1)
+        # East
+        elif r == r_q and c > c_q:
+            directions["E"] = min(directions["E"], c - c_q - 1)
+        # West
+        elif r == r_q and c < c_q:
+            directions["W"] = min(directions["W"], c_q - c - 1)
+        # North-East
+        elif r - r_q == c - c_q and r > r_q:
+            directions["NE"] = min(directions["NE"], r - r_q - 1)
+        # North-West
+        elif r - r_q == c_q - c and r > r_q:
+            directions["NW"] = min(directions["NW"], r - r_q - 1)
+        # South-East
+        elif r_q - r == c - c_q and r < r_q:
+            directions["SE"] = min(directions["SE"], r_q - r - 1)
+        # South-West
+        elif r_q - r == c_q - c and r < r_q:
+            directions["SW"] = min(directions["SW"], r_q - r - 1)
 
-    // Move in each direction until we hit an obstacle or boundary
-    for (auto dir : directions) {
-        int row = r_q, col = c_q;
-        while (true) {
-            row += dir.first;
-            col += dir.second;
+    return sum(directions.values())
 
-            if (row < 1 || row > n || col < 1 || col > n) break; // Board boundary
-            if (obstacle_set.count({row, col})) break; // Obstacle found
+# Main function to read input/output for the platform
+if __name__ == '__main__':
+    import sys
+    n, k = map(int, sys.stdin.readline().split())
+    r_q, c_q = map(int, sys.stdin.readline().split())
 
-            attackable_squares++;
-        }
-    }
+    obstacles = []
+    for _ in range(k):
+        r, c = map(int, sys.stdin.readline().split())
+        obstacles.append((r, c))
 
-    return attackable_squares;
-}
-
-int main() {
-    int n, k;
-    cin >> n >> k;
-    int r_q, c_q;
-    cin >> r_q >> c_q;
-
-    vector<vector<int>> obstacles(k, vector<int>(2));
-    for (int i = 0; i < k; i++) {
-        cin >> obstacles[i][0] >> obstacles[i][1];
-    }
-
-    cout << queensAttack(n, k, r_q, c_q, obstacles) << endl;
-    return 0;
-}
+    print(queensAttack(n, k, r_q, c_q, obstacles))
