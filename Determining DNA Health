@@ -1,0 +1,62 @@
+from collections import defaultdict
+
+class TrieNode:
+    def __init__(self):
+        self.children = dict()
+        self.indexes = []
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word, index):
+        node = self.root
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+        node.indexes.append(index)
+
+    def search(self, dna, start, healthy_range, gene_health, gene_list):
+        node = self.root
+        total = 0
+        for i in range(start, len(dna)):
+            char = dna[i]
+            if char not in node.children:
+                break
+            node = node.children[char]
+            for idx in node.indexes:
+                if healthy_range[0] <= idx <= healthy_range[1]:
+                    total += gene_health[idx]
+        return total
+
+def main():
+    n = int(input())
+    genes = input().split()
+    health = list(map(int, input().split()))
+    s = int(input())
+
+    # Build the Trie with all genes
+    trie = Trie()
+    for idx, gene in enumerate(genes):
+        trie.insert(gene, idx)
+
+    min_health = float('inf')
+    max_health = float('-inf')
+
+    for _ in range(s):
+        first, last, d = input().split()
+        first = int(first)
+        last = int(last)
+        total_health = 0
+
+        for i in range(len(d)):
+            total_health += trie.search(d, i, (first, last), health, genes)
+
+        min_health = min(min_health, total_health)
+        max_health = max(max_health, total_health)
+
+    print(f"{min_health} {max_health}")
+
+if __name__ == '__main__':
+    main()
